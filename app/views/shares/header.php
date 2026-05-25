@@ -35,7 +35,7 @@
                 Hệ thống cửa hàng
             </a>
 
-            <a href="#">
+            <a href="/project1/Product/orders">
                 <i class="fa-solid fa-truck-fast"></i>
                 Tra cứu đơn hàng
             </a>
@@ -97,25 +97,35 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link custom-link"
-                        href="/project1/Product/add">
 
-                        <i class="fa-solid fa-plus"></i>
-                        Thêm sản phẩm
+    <a class="nav-link cart-btn"
+       href="/project1/Product/cart">
 
-                    </a>
-                </li>
+        <i class="fa-solid fa-cart-shopping"></i>
+        Giỏ hàng
 
-                <li class="nav-item">
-                    <a class="nav-link cart-btn"
-                        href="#">
+        <?php
+            $cartCount = 0;
 
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        Giỏ hàng
+            if(isset($_SESSION['cart'])){
 
-                    </a>
-                </li>
+                foreach($_SESSION['cart'] as $item){
 
+                    $cartCount += $item['quantity'];
+                }
+            }
+        ?>
+
+<span class="cart-count"
+      id="cartCount">
+
+            <?php echo $cartCount; ?>
+
+        </span>
+
+    </a>
+
+</li>
             </ul>
 
         </div>

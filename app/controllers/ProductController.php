@@ -112,6 +112,7 @@ class ProductController
         }
     }
 
+
     // =========================
     // SỬA SẢN PHẨM
     // =========================
@@ -263,21 +264,206 @@ class ProductController
         // Nếu đã có thì tăng số lượng
         if (isset($_SESSION['cart'][$id])) {
 
-            $_SESSION['cart'][$id]['quantity']++;
+            $qty = isset($_GET['quantity'])
+    ? (int)$_GET['quantity']
+    : 1;
+
+$_SESSION['cart'][$id]['quantity'] += $qty;
 
         } else {
 
             $_SESSION['cart'][$id] = [
                 'name' => $product->name,
                 'price' => $product->price,
-                'quantity' => 1,
+                'quantity' => isset($_GET['quantity'])
+    ? (int)$_GET['quantity']
+    : 1,
                 'image' => $product->image
             ];
         }
 
-        header('Location: /project1/Product/cart');
-        exit();
-    }
+        $totalQuantity = 0;
+
+foreach($_SESSION['cart'] as $item){
+
+    $totalQuantity += $item['quantity'];
 }
 
+echo json_encode([
+    'success' => true,
+    'quantity' => $_SESSION['cart'][$id]['quantity'],
+    'totalQuantity' => $totalQuantity
+]);
+        exit();
+    }
+    // =========================
+    // TRANG GIỎ HÀNG
+    // =========================
+    public function cart()
+    {
+        $cart = $_SESSION['cart'] ?? [];
+
+        include 'app/views/product/cart.php';
+    }
+    // =========================
+// CHECKOUT
+// =========================
+public function checkout()
+{
+    $cart = $_SESSION['cart'] ?? [];
+
+    include 'app/views/product/checkout.php';
+}
+public function orders()
+{
+    $orders = $_SESSION['orders'] ?? [];
+
+    include 'app/views/product/orders.php';
+}
+public function placeOrder()
+{
+    if(!isset($_SESSION['orders'])){
+
+        $_SESSION['orders'] = [];
+    }
+
+    $cart = $_SESSION['cart'] ?? [];
+
+    // RANDOM MÃ 10 SỐ KHÔNG TRÙNG
+    do{
+
+        $orderCode =
+            str_pad(
+                rand(0,9999999999),
+                10,
+                '0',
+                STR_PAD_LEFT
+            );
+
+    }while(isset($_SESSION['orders'][$orderCode]));
+
+    // TÍNH TỔNG
+    $total = 0;
+
+    foreach($cart as $item){
+
+        $total +=
+            $item['price']
+            * $item['quantity'];
+    }
+
+    // LƯU ĐƠN HÀNG
+    $_SESSION['orders'][$orderCode] = [
+
+        'code' => $orderCode,
+
+        'items' => $cart,
+
+        'total' => $total,
+
+        'status' => 'Đang giao hàng',
+
+        'created_at' => date('d/m/Y H:i:s')
+    ];
+
+    // XOÁ GIỎ HÀNG
+    unset($_SESSION['cart']);
+
+    echo json_encode([
+
+        'success' => true,
+
+        'orderCode' => $orderCode
+    ]);
+
+    exit();
+}
+        // =========================
+    // UPDATE CART
+    // =========================
+    public function updateCart()
+    {
+        $id = $_GET['id'] ?? 0;
+
+        $action = $_GET['action'] ?? '';
+
+        if(isset($_SESSION['cart'][$id])){
+
+            if($action == 'plus'){
+
+                $_SESSION['cart'][$id]['quantity']++;
+
+            }
+
+            if($action == 'minus'){
+
+                $_SESSION['cart'][$id]['quantity']--;
+
+                if($_SESSION['cart'][$id]['quantity'] <= 0){
+
+                    unset($_SESSION['cart'][$id]);
+                }
+            }
+
+        }
+
+        $totalQuantity = 0;
+
+        foreach($_SESSION['cart'] as $item){
+
+            $totalQuantity += $item['quantity'];
+        }
+
+        echo json_encode([
+            'success' => true,
+            'totalQuantity' => $totalQuantity
+        ]);
+
+        exit();
+    }
+
+    // =========================
+    // REMOVE CART
+    // =========================
+    public function removeCart()
+    {
+        $id = $_GET['id'] ?? 0;
+
+        if(isset($_SESSION['cart'][$id])){
+
+            unset($_SESSION['cart'][$id]);
+        }
+
+        $totalQuantity = 0;
+
+        foreach($_SESSION['cart'] as $item){
+
+            $totalQuantity += $item['quantity'];
+        }
+
+        echo json_encode([
+            'success' => true,
+            'totalQuantity' => $totalQuantity
+        ]);
+
+        exit();
+    }
+    // =========================
+// DELETE ORDER
+// =========================
+public function deleteOrder()
+{
+    $code = $_GET['code'] ?? '';
+
+    if(isset($_SESSION['orders'][$code])){
+
+        unset($_SESSION['orders'][$code]);
+    }
+
+    header('Location: /project1/Product/orders');
+
+    exit();
+}
+
+}
 ?>

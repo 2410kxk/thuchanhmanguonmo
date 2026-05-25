@@ -46,9 +46,9 @@ CREATE TABLE IF NOT EXISTS `product` (
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   CONSTRAINT `product_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table my_store.product: ~7 rows (approximately)
+-- Dumping data for table my_store.product: ~8 rows (approximately)
 INSERT INTO `product` (`id`, `name`, `description`, `price`, `image`, `category_id`) VALUES
 	(10, 'Laptop gaming ASUS ROG Strix G16 G614PH-TS118W', 'ASUS TUF Gaming là dòng laptop gaming bền bỉ theo tiêu chuẩn quân đội, trang bị GPU RTX 50 Series, RAM từ 16GB, màn hình 100% sRGB, tần số quét cao, laptop gaming cho học sinh sinh viên với mức giá tốt nhất phân khúc phổ thông.', 48000000.00, 'uploads/ASUS ROG Strix G16 G614PH-TS118W.jpg', 2),
 	(12, 'Tai nghe Asus ROG Pelta WL RGB Black', 'Tai nghe Asus ROG Pelta WL RGB Black là dòng tai nghe gaming không dây cao cấp, nổi bật với công nghệ không dây ROG SpeedNova siêu độ trễ thấp. Sở hữu màng loa titan 50mm, micro siêu băng thông và thiết kế siêu nhẹ, đây là lựa chọn hoàn hảo cho game thủ.', 3190000.00, 'uploads/Asus ROG Pelta WL RGB Black.jpg', 4),
@@ -56,7 +56,8 @@ INSERT INTO `product` (`id`, `name`, `description`, `price`, `image`, `category_
 	(14, 'Máy tính bảng iPad Pro M5 11 inch WiFi 256GB', 'iPad Pro M5 11 inch WiFi 256GB là chiếc máy tính bảng cao cấp hàng đầu với sức mạnh vượt trội, hướng đến người dùng chuyên nghiệp và sáng tạo. Nổi bật với thiết kế siêu mỏng nhẹ, thiết bị tích hợp công nghệ AI tiên tiến, mang đến trải nghiệm đột phá cho công việc và giải trí', 28090000.00, 'uploads/iPad Pro M5 11 inch WiFi 256GB.jpg', 3),
 	(15, 'Điện thoại Asus ROG Phone 9 Pro (Snapdragon 8 Elite', 'Asus ROG Phone 9 Pro (Snapdragon 8 Elite) là siêu phẩm smartphone gaming cao cấp nhất. Sở hữu chip Snapdragon 8 Elite mạnh mẽ cùng màn hình LTPO AMOLED 165Hz siêu mượt và hệ thống tản nhiệt GameCool 9, máy mang lại hiệu năng đỉnh cao cho các tựa game đồ họa nặng', 27950000.00, 'uploads/AsusROGPhone9Pro.jpg', 1),
 	(16, 'iPhone 17 Pro Max 2TB ', 'iPhone 17 Pro Max là mẫu smartphone cao cấp nhất của Apple, sở hữu màn hình lớn 6,9 inch, chip A19 Pro mạnh mẽ và RAM 12GB tối ưu cho Apple Intelligence. Máy có thiết kế tản nhiệt buồng hơi mới, đi kèm các tùy chọn màu sắc nổi bật như Xanh Đậm', 61990000.00, 'uploads/iphone17prm.jpg', 1),
-	(17, 'Loa Logitech G560', 'Logitech G560 là hệ thống loa gaming 2.1 cao cấp, nổi bật với công suất khủng 240W và hệ thống đèn LIGHTSYNC RGB 16.8 triệu màu. Nó đồng bộ ánh sáng và âm thanh theo từng diễn biến trên màn hình, mang lại trải nghiệm đắm chìm cho mọi game thủ. ', 4070000.00, 'uploads/Loa Logitech G560.jpg', 5);
+	(17, 'Loa Logitech G560', 'Logitech G560 là hệ thống loa gaming 2.1 cao cấp, nổi bật với công suất khủng 240W và hệ thống đèn LIGHTSYNC RGB 16.8 triệu màu. Nó đồng bộ ánh sáng và âm thanh theo từng diễn biến trên màn hình, mang lại trải nghiệm đắm chìm cho mọi game thủ. ', 4070000.00, 'uploads/Loa Logitech G560.jpg', 5),
+	(18, 'Samsung Galaxy S25 Ultra 5G 12GB/512GB', 'Samsung Galaxy S25 Ultra 5G 12GB/512GB là siêu phẩm flagship hàng đầu, nổi bật với thiết kế khung viền Titanium sang trọng, bo góc cầm nắm thoải mái. Máy sở hữu sức mạnh đột phá từ chip Snapdragon 8 Elite, camera AI 200MP chuyên nghiệp, màn hình lớn 6.9 inch tuyệt đẹp cùng viên pin 5000mAh bền bỉ.', 30990000.00, 'uploads/Samsung Galaxy S25 Ultra .jpg', 1);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
