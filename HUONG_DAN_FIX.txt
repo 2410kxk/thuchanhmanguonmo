@@ -1,0 +1,46 @@
+==============================================
+  HƯỚNG DẪN FIX LỖI TRẮNG / MẤT SẢN PHẨM
+==============================================
+
+BƯỚC 1 - ĐẶT ĐÚNG TÊN THƯ MỤC
+--------------------------------
+Thư mục phải đặt tên là "project1" (không phải "webbanhang")
+  ✅ ĐÚNG: C:\laragon\www\project1\
+  ❌ SAI:  C:\laragon\www\webbanhang\
+
+BƯỚC 2 - TẠO DATABASE ĐÚNG TÊN
+--------------------------------
+Vào http://localhost/phpmyadmin
+Tạo database tên: my_store
+Import file: sqltuan3.sql
+
+BƯỚC 3 - KIỂM TRA database.php
+--------------------------------
+File: app/config/database.php
+  $host     = "localhost";
+  $db_name  = "my_store";    ← phải đúng tên DB vừa tạo
+  $username = "root";
+  $password = "";             ← Laragon mặc định để trống
+
+BƯỚC 4 - KIỂM TRA .htaccess
+--------------------------------
+File .htaccess đã có sẵn trong thư mục gốc.
+Nội dung phải là:
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+BƯỚC 5 - MỞ TRÌNH DUYỆT
+--------------------------------
+  http://localhost/project1/
+
+==============================================
+  TEST API BẰNG POSTMAN
+==============================================
+GET    http://localhost/project1/api/product
+GET    http://localhost/project1/api/product/1
+POST   http://localhost/project1/api/product
+PUT    http://localhost/project1/api/product/1
+DELETE http://localhost/project1/api/product/1
+GET    http://localhost/project1/api/category

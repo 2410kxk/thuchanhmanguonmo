@@ -20,6 +20,9 @@ SessionHelper::start();
 
     <!-- CSS -->
     <link rel="stylesheet" href="/project1/public/css/style.css">
+
+    <!-- jQuery - load sớm trong head để các view dùng được -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body>
@@ -42,6 +45,11 @@ SessionHelper::start();
             <a href="/project1/Product/orders">
                 <i class="fa-solid fa-truck-fast"></i>
                 Tra cứu đơn hàng
+            </a>
+
+            <a href="/project1/public/api-explorer.html">
+                <i class="fa-solid fa-code"></i>
+                API Explorer
             </a>
         </div>
 
@@ -71,9 +79,10 @@ SessionHelper::start();
         <div class="collapse navbar-collapse" id="navbarNav">
 
             <!-- SEARCH -->
-            <form class="search-box mx-auto">
+            <form class="search-box mx-auto" onsubmit="var q=this.querySelector('input').value.trim();window.location.href='/project1/Product/?q='+encodeURIComponent(q);return false;">
                 <input type="text"
-                    placeholder="Bạn cần tìm gì hôm nay...?">
+                    placeholder="Bạn cần tìm gì hôm nay...?"
+                    value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
                 <button type="submit">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
@@ -130,12 +139,22 @@ SessionHelper::start();
                             <?php endif; ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/project1/User/profile">
+                                <i class="fa-solid fa-user-pen mr-2 text-secondary"></i>Hồ sơ cá nhân
+                            </a>
+                            <a class="dropdown-item" href="/project1/User/changePassword">
+                                <i class="fa-solid fa-lock mr-2 text-secondary"></i>Đổi mật khẩu
+                            </a>
                             <?php if (SessionHelper::isAdmin()): ?>
+                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="/project1/Product/add">
                                     <i class="fa-solid fa-plus mr-2 text-success"></i>Thêm sản phẩm
                                 </a>
-                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/project1/Admin/users">
+                                    <i class="fa-solid fa-users-gear mr-2 text-warning"></i>Quản lý người dùng
+                                </a>
                             <?php endif; ?>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="/project1/Product/orders">
                                 <i class="fa-solid fa-box mr-2 text-primary"></i>Đơn hàng của tôi
                             </a>

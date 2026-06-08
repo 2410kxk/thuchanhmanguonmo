@@ -89,7 +89,14 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-auth mt-2">
+            <div class="d-flex justify-content-between align-items-center mt-1 mb-2">
+                <div></div>
+                <a href="/project1/User/forgotPassword" class="auth-link" style="font-size:.88rem;">
+                    <i class="fa fa-question-circle mr-1"></i>Quên mật khẩu?
+                </a>
+            </div>
+
+            <button type="submit" class="btn-auth">
                 <i class="fa fa-right-to-bracket mr-1"></i> Đăng nhập
             </button>
 

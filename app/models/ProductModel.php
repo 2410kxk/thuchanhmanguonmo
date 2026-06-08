@@ -201,6 +201,46 @@ public function getProductsByCategory($category_id)
 
         return false;
     }
+
+    // =========================
+    // TÌM KIẾM SẢN PHẨM
+    // =========================
+    public function searchProducts($search = '', $category_id = '')
+    {
+        $where = [];
+        $params = [];
+
+        if (!empty($search)) {
+            $where[] = "(p.name LIKE :search OR p.description LIKE :search2)";
+            $params[':search']  = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
+        }
+
+        if (!empty($category_id)) {
+            $where[] = "p.category_id = :category_id";
+            $params[':category_id'] = $category_id;
+        }
+
+        $whereClause = count($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $query = "SELECT
+                    p.id,
+                    p.name,
+                    p.description,
+                    p.price,
+                    p.image,
+                    c.name as category_name
+                  FROM " . $this->table_name . " p
+                  LEFT JOIN category c ON p.category_id = c.id
+                  $whereClause";
+
+        $stmt = $this->conn->prepare($query);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 }
 
 ?>

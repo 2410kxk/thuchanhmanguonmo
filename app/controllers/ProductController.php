@@ -264,7 +264,8 @@ class ProductController
     {
         SessionHelper::requireLogin();
 
-        $orders = $_SESSION['orders'] ?? [];
+        $userId = SessionHelper::getUserId();
+        $orders = $_SESSION['orders'][$userId] ?? [];
         include 'app/views/product/orders.php';
     }
 
@@ -272,22 +273,24 @@ class ProductController
     {
         SessionHelper::requireLogin();
 
-        if (!isset($_SESSION['orders'])) {
-            $_SESSION['orders'] = [];
+        $userId = SessionHelper::getUserId();
+
+        if (!isset($_SESSION['orders'][$userId])) {
+            $_SESSION['orders'][$userId] = [];
         }
 
         $cart = $_SESSION['cart'] ?? [];
 
         do {
             $orderCode = str_pad(rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
-        } while (isset($_SESSION['orders'][$orderCode]));
+        } while (isset($_SESSION['orders'][$userId][$orderCode]));
 
         $total = 0;
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
         }
 
-        $_SESSION['orders'][$orderCode] = [
+        $_SESSION['orders'][$userId][$orderCode] = [
             'code'       => $orderCode,
             'items'      => $cart,
             'total'      => $total,
@@ -364,10 +367,11 @@ class ProductController
     {
         SessionHelper::requireLogin();
 
-        $code = $_GET['code'] ?? '';
+        $userId = SessionHelper::getUserId();
+        $code   = $_GET['code'] ?? '';
 
-        if (isset($_SESSION['orders'][$code])) {
-            unset($_SESSION['orders'][$code]);
+        if (isset($_SESSION['orders'][$userId][$code])) {
+            unset($_SESSION['orders'][$userId][$code]);
         }
 
         header('Location: /project1/Product/orders');

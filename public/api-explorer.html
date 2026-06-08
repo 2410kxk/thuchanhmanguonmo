@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2410KXK — API Explorer</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --card: #1e293b;
+    --border: rgba(255,255,255,.08);
+    --red: #ff4d4d;
+    --red-dim: rgba(255,77,77,.15);
+    --green: #00ff99;
+    --green-dim: rgba(0,255,153,.12);
+    --yellow: #f59e0b;
+    --blue: #38bdf8;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+
+  /* HEADER */
+  .api-header { background:linear-gradient(135deg,#1a0a0a 0%,#0a0f1e 60%,#0a1a10 100%); border-bottom:1px solid var(--border); padding:28px 32px; display:flex; align-items:center; gap:16px; }
+  .api-logo { font-size:26px; font-weight:800; color:var(--red); letter-spacing:-1px; }
+  .api-badge { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,77,77,.3); padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; }
+  .api-subtitle { color:var(--muted); font-size:14px; margin-top:4px; }
+
+  /* LAYOUT */
+  .api-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 97px); }
+
+  /* SIDEBAR */
+  .sidebar { background:var(--surface); border-right:1px solid var(--border); padding:20px 0; }
+  .sidebar-title { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:0 20px 12px; }
+  .endpoint-item { display:flex; align-items:center; gap:12px; padding:12px 20px; cursor:pointer; border-left:3px solid transparent; transition:.2s; }
+  .endpoint-item:hover { background:var(--red-dim); border-left-color:var(--red); }
+  .endpoint-item.active { background:var(--red-dim); border-left-color:var(--red); }
+  .method-badge { font-size:10px; font-weight:800; padding:3px 8px; border-radius:5px; min-width:46px; text-align:center; }
+  .badge-get { background:rgba(56,189,248,.15); color:var(--blue); }
+  .badge-post { background:rgba(0,255,153,.12); color:var(--green); }
+  .badge-put { background:rgba(245,158,11,.12); color:var(--yellow); }
+  .badge-delete { background:rgba(255,77,77,.15); color:var(--red); }
+  .endpoint-path { font-family:monospace; font-size:13px; color:var(--text); }
+
+  /* MAIN PANEL */
+  .main-panel { padding:28px 32px; overflow-y:auto; }
+  .panel-title { font-size:20px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:10px; }
+  .panel-desc { color:var(--muted); font-size:14px; margin-bottom:24px; }
+
+  /* REQUEST SECTION */
+  .section { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; }
+  .section-label { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+
+  /* URL BAR */
+  .url-bar { display:flex; gap:10px; align-items:center; margin-bottom:16px; }
+  .url-method { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,77,77,.3); border-radius:8px; padding:10px 14px; font-weight:700; font-size:13px; font-family:monospace; min-width:70px; text-align:center; }
+  .url-input { flex:1; background:#0f172a; border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:monospace; font-size:13px; outline:none; transition:.2s; }
+  .url-input:focus { border-color:rgba(255,77,77,.5); }
+  .send-btn { background:var(--red); color:#fff; border:none; border-radius:8px; padding:10px 24px; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .send-btn:hover { background:#ff2020; transform:translateY(-1px); }
+  .send-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+  /* FORM FIELDS */
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .field-group { display:flex; flex-direction:column; gap:6px; }
+  .field-group.full { grid-column:1/-1; }
+  .field-label { font-size:12px; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:5px; }
+  .field-req { color:var(--red); }
+  .field-input, .field-select, .field-textarea { background:#0f172a; border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font-size:13px; outline:none; transition:.2s; }
+  .field-input:focus, .field-select:focus, .field-textarea:focus { border-color:rgba(255,77,77,.5); }
+  .field-textarea { resize:vertical; min-height:80px; font-family:inherit; }
+  .field-select option { background:#1e293b; }
+  .file-input-wrap { background:#0f172a; border:1px dashed rgba(255,77,77,.3); border-radius:8px; padding:16px; text-align:center; cursor:pointer; transition:.2s; }
+  .file-input-wrap:hover { border-color:var(--red); background:var(--red-dim); }
+  .file-input-wrap input { display:none; }
+
+  /* RESPONSE */
+  .response-area { background:#060d1a; border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+  .response-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .status-pill { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; }
+  .status-2xx { background:var(--green-dim); color:var(--green); border:1px solid rgba(0,255,153,.2); }
+  .status-4xx { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,77,77,.2); }
+  .status-0 { background:rgba(100,116,139,.15); color:var(--muted); border:1px solid rgba(100,116,139,.2); }
+  .time-info { color:var(--muted); font-size:12px; }
+  pre#response-body { color:#7dd3fc; font-family:'Courier New',monospace; font-size:13px; white-space:pre-wrap; word-break:break-all; max-height:420px; overflow-y:auto; margin:0; }
+
+  /* PRODUCTS VISUAL */
+  #products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:20px; }
+  .product-api-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:.2s; }
+  .product-api-card:hover { border-color:rgba(255,77,77,.4); transform:translateY(-2px); }
+  .product-api-card img { width:100%; height:140px; object-fit:cover; background:#0f172a; }
+  .product-api-card .p-info { padding:12px; }
+  .product-api-card .p-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px; line-clamp:2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .product-api-card .p-cat { font-size:11px; color:var(--red); margin-bottom:6px; }
+  .product-api-card .p-price { font-size:15px; font-weight:700; color:var(--green); }
+
+  /* TABS */
+  .tab-bar { display:flex; gap:4px; margin-bottom:16px; border-bottom:1px solid var(--border); }
+  .tab { padding:8px 16px; cursor:pointer; font-size:13px; color:var(--muted); border-bottom:2px solid transparent; transition:.2s; }
+  .tab.active { color:var(--red); border-bottom-color:var(--red); }
+
+  /* LOADING */
+  .spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* TOAST */
+  #toast-wrap { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+  .toast-item { background:var(--card); border-left:3px solid var(--green); padding:12px 18px; border-radius:10px; font-size:13px; box-shadow:0 4px 20px rgba(0,0,0,.4); animation:slideUp .3s ease; }
+  .toast-item.err { border-left-color:var(--red); }
+  @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+  .empty-panel { text-align:center; padding:48px; color:var(--muted); }
+  .empty-panel i { font-size:48px; margin-bottom:12px; display:block; }
+</style>
+</head>
+<body>
+
+<div class="api-header">
+  <div>
+    <div class="api-logo">2410KXK <span class="api-badge">API</span></div>
+    <div class="api-subtitle">Frontend Explorer — Tương tác với API bằng jQuery</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+    <a href="/project1/Product/" style="color:var(--muted);font-size:13px;text-decoration:none;">
+      <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+    </a>
+  </div>
+</div>
+
+<div class="api-layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Endpoints</div>
+
+    <div class="endpoint-item active" data-endpoint="list-products">
+      <span class="method-badge badge-get">GET</span>
+      <span class="endpoint-path">/api/product</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="get-product">
+      <span class="method-badge badge-get">GET</span>
+      <span class="endpoint-path">/api/product/{id}</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="create-product">
+      <span class="method-badge badge-post">POST</span>
+      <span class="endpoint-path">/api/product</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="update-product">
+      <span class="method-badge badge-put">PUT</span>
+      <span class="endpoint-path">/api/product/{id}</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="delete-product">
+      <span class="method-badge badge-delete">DEL</span>
+      <span class="endpoint-path">/api/product/{id}</span>
+    </div>
+
+    <div class="sidebar-title" style="margin-top:20px;">Danh mục</div>
+    <div class="endpoint-item" data-endpoint="list-categories">
+      <span class="method-badge badge-get">GET</span>
+      <span class="endpoint-path">/api/category</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-panel">
+
+    <!-- LIST PRODUCTS -->
+    <div id="panel-list-products">
+      <div class="panel-title">
+        <span class="method-badge badge-get" style="font-size:13px;padding:5px 12px;">GET</span>
+        Danh sách sản phẩm
+      </div>
+      <div class="panel-desc">Lấy toàn bộ danh sách sản phẩm, hỗ trợ tìm kiếm và lọc theo danh mục.</div>
+
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method">GET</span>
+          <input class="url-input" id="url-list" value="/project1/api/product" readonly>
+          <button class="send-btn" id="btn-list-products"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+        <div class="field-grid">
+          <div class="field-group">
+            <div class="field-label">Tìm kiếm</div>
+            <input class="field-input" id="lp-search" placeholder="Tên sản phẩm...">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Danh mục (ID)</div>
+            <select class="field-select" id="lp-category">
+              <option value="">-- Tất cả --</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="lp-resp-header" style="display:none;">
+          <span class="status-pill" id="lp-status"></span>
+          <span class="time-info" id="lp-time"></span>
+          <span class="time-info" id="lp-count"></span>
+        </div>
+
+        <div class="tab-bar" id="lp-tabs" style="display:none;">
+          <div class="tab active" data-tab="visual" data-panel="lp">Visual</div>
+          <div class="tab" data-tab="json" data-panel="lp">JSON</div>
+        </div>
+
+        <div id="lp-visual">
+          <div class="empty-panel"><i class="fa-solid fa-play-circle"></i>Nhấn "Gửi" để xem kết quả</div>
+        </div>
+        <pre id="lp-json" style="display:none;"></pre>
+      </div>
+    </div>
+
+    <!-- GET PRODUCT BY ID -->
+    <div id="panel-get-product" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-get" style="font-size:13px;padding:5px 12px;">GET</span>
+        Lấy sản phẩm theo ID
+      </div>
+      <div class="panel-desc">Trả về chi tiết một sản phẩm theo ID.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method">GET</span>
+          <input class="url-input" id="url-get" value="/project1/api/product/{id}">
+          <button class="send-btn" id="btn-get-product"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+        <div class="field-grid">
+          <div class="field-group">
+            <div class="field-label">Product ID <span class="field-req">*</span></div>
+            <input class="field-input" id="gp-id" placeholder="1" type="number" min="1">
+          </div>
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="gp-resp-header" style="display:none;">
+          <span class="status-pill" id="gp-status"></span>
+          <span class="time-info" id="gp-time"></span>
+        </div>
+        <pre id="gp-json">Nhập ID và nhấn "Gửi"...</pre>
+      </div>
+    </div>
+
+    <!-- CREATE PRODUCT -->
+    <div id="panel-create-product" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-post" style="font-size:13px;padding:5px 12px;">POST</span>
+        Thêm sản phẩm mới
+      </div>
+      <div class="panel-desc">Tạo sản phẩm mới. Hỗ trợ upload ảnh qua multipart/form-data.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request Body</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:rgba(0,255,153,.12);color:var(--green);border-color:rgba(0,255,153,.2);">POST</span>
+          <input class="url-input" value="/project1/api/product" readonly>
+          <button class="send-btn" id="btn-create-product" style="background:var(--green);color:#000;"><i class="fa-solid fa-plus"></i> Tạo mới</button>
+        </div>
+        <div class="field-grid">
+          <div class="field-group">
+            <div class="field-label">Tên sản phẩm <span class="field-req">*</span></div>
+            <input class="field-input" id="cp-name" placeholder="VD: iPhone 17 Pro">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Giá (VND) <span class="field-req">*</span></div>
+            <input class="field-input" id="cp-price" type="number" placeholder="29990000">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Danh mục <span class="field-req">*</span></div>
+            <select class="field-select" id="cp-category">
+              <option value="">-- Chọn danh mục --</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Hình ảnh</div>
+            <div class="file-input-wrap" onclick="$('#cp-image').click()">
+              <input type="file" id="cp-image" accept="image/*">
+              <i class="fa-solid fa-cloud-arrow-up" style="color:var(--red);font-size:22px;margin-bottom:6px;"></i>
+              <div id="cp-image-name" style="font-size:12px;color:var(--muted);">Nhấn để chọn ảnh (tối đa 5MB)</div>
+            </div>
+          </div>
+          <div class="field-group full">
+            <div class="field-label">Mô tả <span class="field-req">*</span></div>
+            <textarea class="field-textarea" id="cp-desc" placeholder="Mô tả sản phẩm..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="cp-resp-header" style="display:none;">
+          <span class="status-pill" id="cp-status"></span>
+          <span class="time-info" id="cp-time"></span>
+        </div>
+        <pre id="cp-json">Điền thông tin và nhấn "Tạo mới"...</pre>
+      </div>
+    </div>
+
+    <!-- UPDATE PRODUCT -->
+    <div id="panel-update-product" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-put" style="font-size:13px;padding:5px 12px;">PUT</span>
+        Cập nhật sản phẩm
+      </div>
+      <div class="panel-desc">Cập nhật thông tin sản phẩm theo ID.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:rgba(245,158,11,.12);color:var(--yellow);border-color:rgba(245,158,11,.2);">PUT</span>
+          <input class="url-input" value="/project1/api/product/{id}" readonly>
+          <button class="send-btn" id="btn-update-product" style="background:var(--yellow);color:#000;"><i class="fa-solid fa-pen"></i> Cập nhật</button>
+        </div>
+        <div class="field-grid">
+          <div class="field-group">
+            <div class="field-label">Product ID <span class="field-req">*</span></div>
+            <input class="field-input" id="up-id" placeholder="1" type="number" min="1">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Tên sản phẩm</div>
+            <input class="field-input" id="up-name" placeholder="Tên mới">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Giá (VND)</div>
+            <input class="field-input" id="up-price" type="number" placeholder="29990000">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Danh mục</div>
+            <select class="field-select" id="up-category">
+              <option value="">-- Giữ nguyên --</option>
+            </select>
+          </div>
+          <div class="field-group full">
+            <div class="field-label">Mô tả</div>
+            <textarea class="field-textarea" id="up-desc" placeholder="Mô tả mới..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="up-resp-header" style="display:none;">
+          <span class="status-pill" id="up-status"></span>
+          <span class="time-info" id="up-time"></span>
+        </div>
+        <pre id="up-json">Điền ID và nhấn "Cập nhật"...</pre>
+      </div>
+    </div>
+
+    <!-- DELETE PRODUCT -->
+    <div id="panel-delete-product" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-delete" style="font-size:13px;padding:5px 12px;">DELETE</span>
+        Xóa sản phẩm
+      </div>
+      <div class="panel-desc">Xóa sản phẩm khỏi database theo ID. <strong style="color:var(--red);">Thao tác không thể hoàn tác!</strong></div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:var(--red-dim);color:var(--red);">DEL</span>
+          <input class="url-input" value="/project1/api/product/{id}" readonly>
+          <button class="send-btn" id="btn-delete-product" style="background:#ff003c;"><i class="fa-solid fa-trash"></i> Xóa</button>
+        </div>
+        <div class="field-grid">
+          <div class="field-group">
+            <div class="field-label">Product ID <span class="field-req">*</span></div>
+            <input class="field-input" id="dp-id" placeholder="1" type="number" min="1">
+          </div>
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="dp-resp-header" style="display:none;">
+          <span class="status-pill" id="dp-status"></span>
+          <span class="time-info" id="dp-time"></span>
+        </div>
+        <pre id="dp-json">Nhập ID sản phẩm cần xóa...</pre>
+      </div>
+    </div>
+
+    <!-- LIST CATEGORIES -->
+    <div id="panel-list-categories" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-get" style="font-size:13px;padding:5px 12px;">GET</span>
+        Danh sách danh mục
+      </div>
+      <div class="panel-desc">Lấy toàn bộ danh mục sản phẩm.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method">GET</span>
+          <input class="url-input" value="/project1/api/category" readonly>
+          <button class="send-btn" id="btn-list-cats"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="lc-resp-header" style="display:none;">
+          <span class="status-pill" id="lc-status"></span>
+          <span class="time-info" id="lc-time"></span>
+        </div>
+        <pre id="lc-json">Nhấn "Gửi" để lấy danh mục...</pre>
+      </div>
+    </div>
+
+  </div><!-- /main-panel -->
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+const BASE = '/project1';
+
+// ===== TOAST =====
+function toast(msg, err) {
+  const el = $('<div>').addClass('toast-item' + (err ? ' err' : '')).text(msg);
+  $('#toast-wrap').append(el);
+  setTimeout(() => el.fadeOut(300, () => el.remove()), 3000);
+}
+
+// ===== STATUS PILL =====
+function statusPill(code) {
+  const cls = code >= 200 && code < 300 ? 'status-2xx' : code >= 400 ? 'status-4xx' : 'status-0';
+  return `<span class="status-pill ${cls}">${code}</span>`;
+}
+
+// ===== SIDEBAR NAV =====
+$('.endpoint-item').on('click', function () {
+  $('.endpoint-item').removeClass('active');
+  $(this).addClass('active');
+  const ep = $(this).data('endpoint');
+  $('[id^="panel-"]').hide();
+  $('#panel-' + ep).show();
+});
+
+// ===== LOAD CATEGORIES for dropdowns =====
+function loadCategories() {
+  $.getJSON(BASE + '/api/category', function (cats) {
+    const opts = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    $('#lp-category, #cp-category, #up-category').append(opts);
+  });
+}
+loadCategories();
+
+// ===== FORMAT =====
+function fmt(p) { return parseInt(p).toLocaleString('vi-VN') + ' đ'; }
+function prettyJSON(obj) { return JSON.stringify(obj, null, 2); }
+
+// ===== IMAGE PREVIEW for create =====
+$('#cp-image').on('change', function () {
+  const f = this.files[0];
+  $('#cp-image-name').text(f ? f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)' : 'Nhấn để chọn ảnh (tối đa 5MB)');
+});
+
+// ===== 1. LIST PRODUCTS =====
+$('#btn-list-products').on('click', function () {
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const search = $('#lp-search').val();
+  const cat = $('#lp-category').val();
+  const params = {};
+  if (search) params.search = search;
+  if (cat) params.category_id = cat;
+  $('#url-list').val(BASE + '/api/product' + (Object.keys(params).length ? '?' + $.param(params) : ''));
+
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/product',
+    data: params,
+    success: function (data) {
+      const ms = Date.now() - t0;
+      const code = 200;
+      $('#lp-resp-header').show();
+      $('#lp-status').attr('class', 'status-pill status-2xx').text(code + ' OK');
+      $('#lp-time').text(ms + 'ms');
+      $('#lp-count').text(data.length + ' sản phẩm');
+      $('#lp-tabs').show();
+
+      // Visual grid
+      if (data.length === 0) {
+        $('#lp-visual').html('<div class="empty-panel"><i class="fa-solid fa-box-open"></i>Không có sản phẩm nào</div>');
+      } else {
+        const cards = data.map(p => `
+          <div class="product-api-card">
+            <img src="${p.image ? BASE+'/'+p.image : BASE+'/public/images/default-product.jpg'}"
+                 onerror="this.src='${BASE}/public/images/default-product.jpg'" alt="${p.name}">
+            <div class="p-info">
+              <div class="p-cat"><i class="fa-solid fa-tag"></i> ${p.category_name || 'N/A'}</div>
+              <div class="p-name">${p.name}</div>
+              <div class="p-price">${fmt(p.price)}</div>
+            </div>
+          </div>`).join('');
+        $('#lp-visual').html('<div id="products-grid">' + cards + '</div>');
+      }
+      $('#lp-json').text(prettyJSON(data)).hide();
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#lp-resp-header').show();
+      $('#lp-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#lp-time').text(ms + 'ms');
+      $('#lp-visual').html('<div class="empty-panel"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i>Lỗi kết nối API</div>');
+      $('#lp-json').text(xhr.responseText).show();
+      toast('Lỗi tải sản phẩm!', true);
+    },
+    complete: function () {
+      btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi');
+    }
+  });
+});
+
+// Tab switching for list products
+$(document).on('click', '.tab', function () {
+  const panel = $(this).data('panel');
+  const tab = $(this).data('tab');
+  $(this).closest('.tab-bar').find('.tab').removeClass('active');
+  $(this).addClass('active');
+  if (panel === 'lp') {
+    tab === 'visual' ? ($('#lp-visual').show(), $('#lp-json').hide()) : ($('#lp-visual').hide(), $('#lp-json').show());
+  }
+});
+
+// ===== 2. GET PRODUCT BY ID =====
+$('#btn-get-product').on('click', function () {
+  const id = $('#gp-id').val();
+  if (!id) { toast('Vui lòng nhập ID!', true); return; }
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/product/' + id,
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#gp-resp-header').show();
+      $('#gp-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#gp-time').text(ms + 'ms');
+      $('#gp-json').text(prettyJSON(data));
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#gp-resp-header').show();
+      $('#gp-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#gp-time').text(ms + 'ms');
+      $('#gp-json').text(xhr.responseText || 'Product not found');
+      toast('Không tìm thấy sản phẩm ID=' + id, true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+
+// ===== 3. CREATE PRODUCT =====
+$('#btn-create-product').on('click', function () {
+  const name = $('#cp-name').val().trim();
+  const desc = $('#cp-desc').val().trim();
+  const price = $('#cp-price').val();
+  const cat = $('#cp-category').val();
+
+  if (!name || !desc || !price || !cat) {
+    toast('Vui lòng điền đầy đủ thông tin bắt buộc!', true);
+    return;
+  }
+
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('description', desc);
+  fd.append('price', price);
+  fd.append('category_id', cat);
+  const imgFile = $('#cp-image')[0].files[0];
+  if (imgFile) fd.append('image', imgFile);
+
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/product',
+    method: 'POST',
+    data: fd,
+    processData: false,
+    contentType: false,
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#cp-resp-header').show();
+      $('#cp-status').attr('class', 'status-pill status-2xx').text('201 Created');
+      $('#cp-time').text(ms + 'ms');
+      $('#cp-json').text(prettyJSON(data));
+      toast('Tạo sản phẩm thành công!');
+      // reset form
+      $('#cp-name, #cp-desc, #cp-price').val('');
+      $('#cp-category').val('');
+      $('#cp-image').val('');
+      $('#cp-image-name').text('Nhấn để chọn ảnh (tối đa 5MB)');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#cp-resp-header').show();
+      $('#cp-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#cp-time').text(ms + 'ms');
+      try { $('#cp-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#cp-json').text(xhr.responseText); }
+      toast('Tạo sản phẩm thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-plus"></i> Tạo mới'); }
+  });
+});
+
+// ===== 4. UPDATE PRODUCT =====
+$('#btn-update-product').on('click', function () {
+  const id = $('#up-id').val();
+  if (!id) { toast('Vui lòng nhập ID!', true); return; }
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+
+  const payload = {};
+  if ($('#up-name').val()) payload.name = $('#up-name').val();
+  if ($('#up-desc').val()) payload.description = $('#up-desc').val();
+  if ($('#up-price').val()) payload.price = $('#up-price').val();
+  if ($('#up-category').val()) payload.category_id = $('#up-category').val();
+
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/product/' + id,
+    method: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#up-resp-header').show();
+      $('#up-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#up-time').text(ms + 'ms');
+      $('#up-json').text(prettyJSON(data));
+      toast('Cập nhật thành công!');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#up-resp-header').show();
+      $('#up-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#up-time').text(ms + 'ms');
+      try { $('#up-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#up-json').text(xhr.responseText); }
+      toast('Cập nhật thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-pen"></i> Cập nhật'); }
+  });
+});
+
+// ===== 5. DELETE PRODUCT =====
+$('#btn-delete-product').on('click', function () {
+  const id = $('#dp-id').val();
+  if (!id) { toast('Vui lòng nhập ID!', true); return; }
+  if (!confirm('Xác nhận xóa sản phẩm ID=' + id + '?\nThao tác không thể hoàn tác!')) return;
+
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/product/' + id,
+    method: 'DELETE',
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#dp-resp-header').show();
+      $('#dp-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#dp-time').text(ms + 'ms');
+      $('#dp-json').text(prettyJSON(data));
+      toast('Xóa sản phẩm ID=' + id + ' thành công!');
+      $('#dp-id').val('');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#dp-resp-header').show();
+      $('#dp-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#dp-time').text(ms + 'ms');
+      try { $('#dp-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#dp-json').text(xhr.responseText); }
+      toast('Xóa sản phẩm thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-trash"></i> Xóa'); }
+  });
+});
+
+// ===== 6. LIST CATEGORIES =====
+$('#btn-list-cats').on('click', function () {
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/category',
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#lc-resp-header').show();
+      $('#lc-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#lc-time').text(ms + 'ms — ' + data.length + ' danh mục');
+      $('#lc-json').text(prettyJSON(data));
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#lc-resp-header').show();
+      $('#lc-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#lc-time').text(ms + 'ms');
+      $('#lc-json').text(xhr.responseText);
+      toast('Lỗi tải danh mục!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+</script>
+</body>
+</html>

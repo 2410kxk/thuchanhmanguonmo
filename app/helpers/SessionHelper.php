@@ -2,7 +2,6 @@
 
 class SessionHelper
 {
-    // Khởi động session (gọi 1 lần duy nhất)
     public static function start()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -13,32 +12,33 @@ class SessionHelper
     // ===========================
     // ĐĂNG NHẬP / ĐĂNG XUẤT
     // ===========================
-
     public static function login($user)
     {
         self::start();
-        $_SESSION['user_id']   = $user->id;
-        $_SESSION['user_name'] = $user->name;
-        $_SESSION['user_email']= $user->email;
-        $_SESSION['user_role'] = $user->role;  // 'admin' hoặc 'user'
+        $_SESSION['user_id']     = $user->id;
+        $_SESSION['user_name']   = $user->name;
+        $_SESSION['user_email']  = $user->email;
+        $_SESSION['user_role']   = $user->role;
+        $_SESSION['user_avatar'] = $user->avatar ?? null;
+        $_SESSION['user_phone']  = $user->phone  ?? null;
     }
 
     public static function logout()
     {
         self::start();
-        // Giữ lại giỏ hàng nếu muốn, xoá thông tin đăng nhập
         unset(
             $_SESSION['user_id'],
             $_SESSION['user_name'],
             $_SESSION['user_email'],
-            $_SESSION['user_role']
+            $_SESSION['user_role'],
+            $_SESSION['user_avatar'],
+            $_SESSION['user_phone']
         );
     }
 
     // ===========================
     // KIỂM TRA TRẠNG THÁI
     // ===========================
-
     public static function isLoggedIn(): bool
     {
         self::start();
@@ -75,13 +75,21 @@ class SessionHelper
         return $_SESSION['user_id'] ?? null;
     }
 
+    public static function getUserEmail(): string
+    {
+        self::start();
+        return $_SESSION['user_email'] ?? '';
+    }
+
+    public static function getUserAvatar(): ?string
+    {
+        self::start();
+        return $_SESSION['user_avatar'] ?? null;
+    }
+
     // ===========================
     // PHÂN QUYỀN / BẢO VỆ ROUTE
     // ===========================
-
-    /**
-     * Yêu cầu phải đăng nhập, nếu chưa → chuyển hướng trang login
-     */
     public static function requireLogin(): void
     {
         if (!self::isLoggedIn()) {
@@ -90,9 +98,6 @@ class SessionHelper
         }
     }
 
-    /**
-     * Yêu cầu phải là Admin, nếu không → báo lỗi 403
-     */
     public static function requireAdmin(): void
     {
         self::requireLogin();
@@ -103,9 +108,6 @@ class SessionHelper
         }
     }
 
-    /**
-     * Nếu đã đăng nhập rồi thì không cho vào trang login/register
-     */
     public static function redirectIfLoggedIn(): void
     {
         if (self::isLoggedIn()) {
