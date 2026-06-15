@@ -163,6 +163,22 @@
       <span class="method-badge badge-get">GET</span>
       <span class="endpoint-path">/api/category</span>
     </div>
+    <div class="endpoint-item" data-endpoint="get-category">
+      <span class="method-badge badge-get">GET</span>
+      <span class="endpoint-path">/api/category/{id}</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="create-category">
+      <span class="method-badge badge-post">POST</span>
+      <span class="endpoint-path">/api/category</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="update-category">
+      <span class="method-badge badge-put">PUT</span>
+      <span class="endpoint-path">/api/category/{id}</span>
+    </div>
+    <div class="endpoint-item" data-endpoint="delete-category">
+      <span class="method-badge badge-delete">DEL</span>
+      <span class="endpoint-path">/api/category/{id}</span>
+    </div>
   </div>
 
   <!-- MAIN -->
@@ -279,11 +295,11 @@
           </div>
           <div class="field-group">
             <div class="field-label">Hình ảnh</div>
-            <div class="file-input-wrap" onclick="$('#cp-image').click()">
-              <input type="file" id="cp-image" accept="image/*">
-              <i class="fa-solid fa-cloud-arrow-up" style="color:var(--red);font-size:22px;margin-bottom:6px;"></i>
+            <label for="cp-image" class="file-input-wrap" style="display:block;cursor:pointer;">
+              <input type="file" id="cp-image" accept="image/*" style="display:none;">
+              <i class="fa-solid fa-cloud-arrow-up" style="color:var(--red);font-size:22px;margin-bottom:6px;display:block;"></i>
               <div id="cp-image-name" style="font-size:12px;color:var(--muted);">Nhấn để chọn ảnh (tối đa 5MB)</div>
-            </div>
+            </label>
           </div>
           <div class="field-group full">
             <div class="field-label">Mô tả <span class="field-req">*</span></div>
@@ -406,6 +422,134 @@
       </div>
     </div>
 
+    <!-- GET CATEGORY BY ID -->
+    <div id="panel-get-category" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-get" style="font-size:13px;padding:5px 12px;">GET</span>
+        Lấy danh mục theo ID
+      </div>
+      <div class="panel-desc">Trả về chi tiết một danh mục theo ID.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method">GET</span>
+          <input class="url-input" id="gc-url" value="/project1/api/category/{id}" readonly>
+          <button class="send-btn" id="btn-get-cat"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+        <div class="field-row">
+          <label class="field-label">ID danh mục</label>
+          <input class="field-input" id="gc-id" type="number" placeholder="VD: 1">
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="gc-resp-header" style="display:none;">
+          <span class="status-pill" id="gc-status"></span>
+          <span class="time-info" id="gc-time"></span>
+        </div>
+        <pre id="gc-json">Nhập ID danh mục cần xem...</pre>
+      </div>
+    </div>
+
+    <!-- CREATE CATEGORY -->
+    <div id="panel-create-category" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-post" style="font-size:13px;padding:5px 12px;">POST</span>
+        Thêm danh mục mới
+      </div>
+      <div class="panel-desc">Tạo danh mục sản phẩm mới.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:var(--green);">POST</span>
+          <input class="url-input" value="/project1/api/category" readonly>
+          <button class="send-btn" id="btn-create-cat"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+        <div class="field-row">
+          <label class="field-label">Tên danh mục <span style="color:var(--red)">*</span></label>
+          <input class="field-input" id="cc-name" placeholder="VD: Điện thoại">
+        </div>
+        <div class="field-row">
+          <label class="field-label">Mô tả</label>
+          <input class="field-input" id="cc-desc" placeholder="VD: Danh mục các loại điện thoại">
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="cc-resp-header" style="display:none;">
+          <span class="status-pill" id="cc-status"></span>
+          <span class="time-info" id="cc-time"></span>
+        </div>
+        <pre id="cc-json">Điền thông tin và nhấn "Gửi"...</pre>
+      </div>
+    </div>
+
+    <!-- UPDATE CATEGORY -->
+    <div id="panel-update-category" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-put" style="font-size:13px;padding:5px 12px;">PUT</span>
+        Cập nhật danh mục
+      </div>
+      <div class="panel-desc">Cập nhật thông tin danh mục theo ID.</div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:#f59e0b;">PUT</span>
+          <input class="url-input" id="uc-url" value="/project1/api/category/{id}" readonly>
+          <button class="send-btn" id="btn-update-cat"><i class="fa-solid fa-play"></i> Gửi</button>
+        </div>
+        <div class="field-row">
+          <label class="field-label">ID danh mục <span style="color:var(--red)">*</span></label>
+          <input class="field-input" id="uc-id" type="number" placeholder="VD: 1">
+        </div>
+        <div class="field-row">
+          <label class="field-label">Tên danh mục mới <span style="color:var(--red)">*</span></label>
+          <input class="field-input" id="uc-name" placeholder="VD: Laptop Gaming">
+        </div>
+        <div class="field-row">
+          <label class="field-label">Mô tả mới</label>
+          <input class="field-input" id="uc-desc" placeholder="VD: Danh mục laptop gaming cao cấp">
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="uc-resp-header" style="display:none;">
+          <span class="status-pill" id="uc-status"></span>
+          <span class="time-info" id="uc-time"></span>
+        </div>
+        <pre id="uc-json">Nhập ID và thông tin cần cập nhật...</pre>
+      </div>
+    </div>
+
+    <!-- DELETE CATEGORY -->
+    <div id="panel-delete-category" style="display:none;">
+      <div class="panel-title">
+        <span class="method-badge badge-delete" style="font-size:13px;padding:5px 12px;">DEL</span>
+        Xóa danh mục
+      </div>
+      <div class="panel-desc">Xóa danh mục khỏi database theo ID. <strong style="color:var(--red);">Thao tác không thể hoàn tác!</strong></div>
+      <div class="section">
+        <div class="section-label"><i class="fa-solid fa-paper-plane"></i> Request</div>
+        <div class="url-bar">
+          <span class="url-method" style="background:var(--red);">DEL</span>
+          <input class="url-input" id="dc-url" value="/project1/api/category/{id}" readonly>
+          <button class="send-btn" id="btn-delete-cat" style="background:var(--red);"><i class="fa-solid fa-trash"></i> Xóa</button>
+        </div>
+        <div class="field-row">
+          <label class="field-label">ID danh mục <span style="color:var(--red)">*</span></label>
+          <input class="field-input" id="dc-id" type="number" placeholder="VD: 1">
+        </div>
+      </div>
+      <div class="section response-area">
+        <div class="section-label"><i class="fa-solid fa-circle-dot"></i> Response</div>
+        <div class="response-header" id="dc-resp-header" style="display:none;">
+          <span class="status-pill" id="dc-status"></span>
+          <span class="time-info" id="dc-time"></span>
+        </div>
+        <pre id="dc-json">Nhập ID danh mục cần xóa...</pre>
+      </div>
+    </div>
+
   </div><!-- /main-panel -->
 </div>
 
@@ -452,7 +596,18 @@ function prettyJSON(obj) { return JSON.stringify(obj, null, 2); }
 // ===== IMAGE PREVIEW for create =====
 $('#cp-image').on('change', function () {
   const f = this.files[0];
-  $('#cp-image-name').text(f ? f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)' : 'Nhấn để chọn ảnh (tối đa 5MB)');
+  if (f) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      $('#cp-image-name').html(
+        '<img src="' + e.target.result + '" style="max-height:60px;border-radius:6px;display:block;margin:0 auto 4px;">' +
+        '<span style="font-size:11px;">' + f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)</span>'
+      );
+    };
+    reader.readAsDataURL(f);
+  } else {
+    $('#cp-image-name').html('Nhấn để chọn ảnh (tối đa 5MB)');
+  }
 });
 
 // ===== 1. LIST PRODUCTS =====
@@ -571,36 +726,44 @@ $('#btn-create-product').on('click', function () {
   if (imgFile) fd.append('image', imgFile);
 
   const t0 = Date.now();
-  $.ajax({
-    url: BASE + '/api/product',
-    method: 'POST',
-    data: fd,
-    processData: false,
-    contentType: false,
-    success: function (data) {
-      const ms = Date.now() - t0;
-      $('#cp-resp-header').show();
+
+  // Dùng XMLHttpRequest thay $.ajax vì jQuery mặc định coi status 201 là lỗi
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', BASE + '/api/product');
+  xhr.onload = function () {
+    const ms = Date.now() - t0;
+    let data;
+    try { data = JSON.parse(xhr.responseText); } catch(e) { data = xhr.responseText; }
+
+    $('#cp-resp-header').show();
+    $('#cp-time').text(ms + 'ms');
+
+    if (xhr.status === 201) {
       $('#cp-status').attr('class', 'status-pill status-2xx').text('201 Created');
-      $('#cp-time').text(ms + 'ms');
       $('#cp-json').text(prettyJSON(data));
       toast('Tạo sản phẩm thành công!');
-      // reset form
+      // Reset form
       $('#cp-name, #cp-desc, #cp-price').val('');
       $('#cp-category').val('');
       $('#cp-image').val('');
-      $('#cp-image-name').text('Nhấn để chọn ảnh (tối đa 5MB)');
-    },
-    error: function (xhr) {
-      const ms = Date.now() - t0;
-      $('#cp-resp-header').show();
+      $('#cp-image-name').html('Nhấn để chọn ảnh (tối đa 5MB)');
+    } else {
       $('#cp-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
-      $('#cp-time').text(ms + 'ms');
-      try { $('#cp-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
-      catch(e) { $('#cp-json').text(xhr.responseText); }
-      toast('Tạo sản phẩm thất bại!', true);
-    },
-    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-plus"></i> Tạo mới'); }
-  });
+      $('#cp-json').text(prettyJSON(data));
+      toast('Tạo sản phẩm thất bại! ' + (data && data.errors ? JSON.stringify(data.errors) : ''), true);
+    }
+    btn.prop('disabled', false).html('<i class="fa-solid fa-plus"></i> Tạo mới');
+  };
+  xhr.onerror = function () {
+    const ms = Date.now() - t0;
+    $('#cp-resp-header').show();
+    $('#cp-status').attr('class', 'status-pill status-4xx').text('Network Error');
+    $('#cp-time').text(ms + 'ms');
+    $('#cp-json').text('Không thể kết nối tới server');
+    toast('Lỗi kết nối mạng!', true);
+    btn.prop('disabled', false).html('<i class="fa-solid fa-plus"></i> Tạo mới');
+  };
+  xhr.send(fd);
 });
 
 // ===== 4. UPDATE PRODUCT =====
@@ -697,6 +860,147 @@ $('#btn-list-cats').on('click', function () {
       toast('Lỗi tải danh mục!', true);
     },
     complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+
+// ===== 7. GET CATEGORY BY ID =====
+$('#gc-id').on('input', function () {
+  const id = $(this).val() || '{id}';
+  $('#gc-url').val('/project1/api/category/' + id);
+});
+$('#btn-get-cat').on('click', function () {
+  const id = $('#gc-id').val().trim();
+  if (!id) { toast('Vui lòng nhập ID danh mục!', true); return; }
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/category/' + id,
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#gc-resp-header').show();
+      $('#gc-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#gc-time').text(ms + 'ms');
+      $('#gc-json').text(prettyJSON(data));
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#gc-resp-header').show();
+      $('#gc-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#gc-time').text(ms + 'ms');
+      try { $('#gc-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#gc-json').text(xhr.responseText); }
+      toast('Không tìm thấy danh mục!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+
+// ===== 8. CREATE CATEGORY =====
+$('#btn-create-cat').on('click', function () {
+  const name = $('#cc-name').val().trim();
+  const desc = $('#cc-desc').val().trim();
+  if (!name) { toast('Vui lòng nhập tên danh mục!', true); return; }
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/category',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ name: name, description: desc }),
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#cc-resp-header').show();
+      $('#cc-status').attr('class', 'status-pill status-2xx').text('201 Created');
+      $('#cc-time').text(ms + 'ms');
+      $('#cc-json').text(prettyJSON(data));
+      $('#cc-name').val(''); $('#cc-desc').val('');
+      toast('Thêm danh mục thành công!');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#cc-resp-header').show();
+      $('#cc-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#cc-time').text(ms + 'ms');
+      try { $('#cc-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#cc-json').text(xhr.responseText); }
+      toast('Thêm danh mục thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+
+// ===== 9. UPDATE CATEGORY =====
+$('#uc-id').on('input', function () {
+  const id = $(this).val() || '{id}';
+  $('#uc-url').val('/project1/api/category/' + id);
+});
+$('#btn-update-cat').on('click', function () {
+  const id   = $('#uc-id').val().trim();
+  const name = $('#uc-name').val().trim();
+  const desc = $('#uc-desc').val().trim();
+  if (!id)   { toast('Vui lòng nhập ID danh mục!', true); return; }
+  if (!name) { toast('Vui lòng nhập tên danh mục mới!', true); return; }
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/category/' + id,
+    method: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify({ name: name, description: desc }),
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#uc-resp-header').show();
+      $('#uc-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#uc-time').text(ms + 'ms');
+      $('#uc-json').text(prettyJSON(data));
+      toast('Cập nhật danh mục thành công!');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#uc-resp-header').show();
+      $('#uc-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#uc-time').text(ms + 'ms');
+      try { $('#uc-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#uc-json').text(xhr.responseText); }
+      toast('Cập nhật danh mục thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-play"></i> Gửi'); }
+  });
+});
+
+// ===== 10. DELETE CATEGORY =====
+$('#dc-id').on('input', function () {
+  const id = $(this).val() || '{id}';
+  $('#dc-url').val('/project1/api/category/' + id);
+});
+$('#btn-delete-cat').on('click', function () {
+  const id = $('#dc-id').val().trim();
+  if (!id) { toast('Vui lòng nhập ID danh mục!', true); return; }
+  if (!confirm('Bạn có chắc muốn xóa danh mục ID ' + id + '?')) return;
+  const btn = $(this).prop('disabled', true).html('<span class="spinner"></span>');
+  const t0 = Date.now();
+  $.ajax({
+    url: BASE + '/api/category/' + id,
+    method: 'DELETE',
+    success: function (data) {
+      const ms = Date.now() - t0;
+      $('#dc-resp-header').show();
+      $('#dc-status').attr('class', 'status-pill status-2xx').text('200 OK');
+      $('#dc-time').text(ms + 'ms');
+      $('#dc-json').text(prettyJSON(data));
+      $('#dc-id').val(''); $('#dc-url').val('/project1/api/category/{id}');
+      toast('Xóa danh mục thành công!');
+    },
+    error: function (xhr) {
+      const ms = Date.now() - t0;
+      $('#dc-resp-header').show();
+      $('#dc-status').attr('class', 'status-pill status-4xx').text(xhr.status + ' Error');
+      $('#dc-time').text(ms + 'ms');
+      try { $('#dc-json').text(prettyJSON(JSON.parse(xhr.responseText))); }
+      catch(e) { $('#dc-json').text(xhr.responseText); }
+      toast('Xóa danh mục thất bại!', true);
+    },
+    complete: function () { btn.prop('disabled', false).html('<i class="fa-solid fa-trash"></i> Xóa'); }
   });
 });
 </script>
